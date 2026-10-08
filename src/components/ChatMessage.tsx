@@ -12,46 +12,38 @@ export default function ChatMessage({ message, isOwn }: Props) {
   const isOffer = message.message_type === "offer";
 
   return (
-    <div
-      className={`flex ${isOwn ? "justify-end" : "justify-start"} animate-slide-up`}
-    >
-      <div className={`max-w-[75%] ${isOwn ? "items-end" : "items-start"}`}>
+    <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3`}>
+      <div className={`max-w-[80%] ${isOwn ? "items-end" : "items-start"}`}>
         {/* Sender name */}
         <p
-          className={`text-[11px] font-medium mb-1 px-1 ${
-            isOwn ? "text-right text-brand-400/70" : "text-left text-gray-500"
+          className={`text-[11px] font-black uppercase tracking-wider mb-1 px-1 text-black/70 ${
+            isOwn ? "text-right" : "text-left"
           }`}
         >
-          {message.sender?.name ?? "Unknown"}
+          {isOwn ? "You" : message.sender?.name ?? "Other Party"}
         </p>
 
         {isOffer ? (
-          /* Offer bubble */
-          <div
-            className={`offer-bubble ${
-              isOwn ? "rounded-br-md" : "rounded-bl-md"
-            }`}
-          >
-            <Tag className="w-4 h-4 text-amber-400" />
-            <div>
-              <p className="text-[11px] text-amber-400/70 font-medium uppercase tracking-wider">
-                Counter Offer
-              </p>
-              <div className="flex items-center gap-0.5 mt-0.5">
-                <IndianRupee className="w-4 h-4 text-amber-300" />
-                <span className="text-lg font-display font-bold text-amber-200">
-                  {message.offer_amount?.toLocaleString("en-IN")}
-                </span>
-              </div>
+          /* Counter-offer bubble */
+          <div className="bg-[#00F5A0] text-black border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black mb-1">
+              <Tag className="w-4 h-4 stroke-[3]" />
+              Official Counter Offer
+            </div>
+            <div className="flex items-center gap-1 bg-[#FFE600] border-2 border-black px-2.5 py-1 w-fit mt-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <IndianRupee className="w-5 h-5 stroke-[3] text-black" />
+              <span className="text-2xl font-black text-black">
+                {message.offer_amount?.toLocaleString("en-IN")}
+              </span>
             </div>
           </div>
         ) : (
-          /* Normal text bubble */
+          /* Normal message bubble */
           <div
-            className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+            className={`p-3.5 text-sm font-bold border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] leading-relaxed ${
               isOwn
-                ? "bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-br-md"
-                : "bg-white/[0.07] text-gray-200 border border-white/[0.08] rounded-bl-md"
+                ? "bg-[#FFE600] text-black"
+                : "bg-white text-black"
             }`}
           >
             {message.content}
@@ -60,7 +52,7 @@ export default function ChatMessage({ message, isOwn }: Props) {
 
         {/* Timestamp */}
         <p
-          className={`text-[10px] text-gray-600 mt-1 px-1 ${
+          className={`text-[10px] font-bold uppercase tracking-wider text-black/60 mt-1 px-1 ${
             isOwn ? "text-right" : "text-left"
           }`}
         >

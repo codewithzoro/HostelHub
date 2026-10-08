@@ -180,3 +180,54 @@ CREATE INDEX idx_conv_buyer       ON public.conversations(buyer_id);
 CREATE INDEX idx_conv_seller      ON public.conversations(seller_id);
 CREATE INDEX idx_msg_conv         ON public.messages(conversation_id);
 CREATE INDEX idx_msg_created      ON public.messages(created_at);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 7. STORAGE BUCKET: item-images
+-- ────────────────────────────────────────────────────────────
+-- Create the public bucket if it doesn't already exist
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'item-images',
+  'item-images',
+  true,
+  5242880, -- 5 MB limit
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- Drop existing policies if re-running
+DROP POLICY IF EXISTS "Public item images are viewable by everyone" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated users can upload item images" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own item images" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own item images" ON storage.objects;
+
+-- Allow public read access to all images in the bucket
+CREATE POLICY "Public item images are viewable by everyone"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'item-images');
+
+-- Allow authenticated users to upload images to item-images
+CREATE POLICY "Authenticated users can upload item images"
+  ON storage.objects FOR INSERT
+  WITH CHECK (
+    bucket_id = 'item-images'
+    AND auth.role() = 'authenticated'
+  );
+
+-- Allow users to update their own images
+CREATE POLICY "Users can update their own item images"
+  ON storage.objects FOR UPDATE
+  USING (
+    bucket_id = 'item-images'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+-- Allow users to delete their own images
+CREATE POLICY "Users can delete their own item images"
+  ON storage.objects FOR DELETE
+  USING (
+    bucket_id = 'item-images'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+

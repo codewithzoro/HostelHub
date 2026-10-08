@@ -6,13 +6,13 @@ import { createClient } from "@/lib/supabase";
 import {
   Store,
   Plus,
-  MessageSquare,
   User,
+  LayoutDashboard,
   LogOut,
   LogIn,
   Menu,
   X,
-  Sparkles,
+  Zap,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -40,95 +40,141 @@ export default function Navbar() {
     window.location.href = "/";
   };
 
-  const navLinks = user
-    ? [
-        { href: "/", label: "Marketplace", icon: Store },
-        { href: "/items/new", label: "Sell Item", icon: Plus },
-        { href: "/profile", label: "Profile", icon: User },
-      ]
-    : [
-        { href: "/", label: "Marketplace", icon: Store },
-      ];
-
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-surface/80 backdrop-blur-2xl">
+    <nav className="sticky top-0 z-50 w-full bg-[#FFE600] border-b-4 border-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 shadow-glow group-hover:shadow-glow-lg transition-shadow duration-300">
-              <Sparkles className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between h-20">
+          {/* Logo with stark border and hard drop shadow */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="flex items-center justify-center w-11 h-11 bg-black text-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all">
+              <Zap className="w-6 h-6 fill-current" />
             </div>
-            <span className="text-xl font-display font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-              HostelHub
+            <span className="text-2xl font-black uppercase tracking-tight text-black">
+              Hostel<span className="bg-black text-[#FFE600] px-1.5 py-0.5 ml-1">Hub</span>
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+          {/* Desktop Nav Items */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 px-4 py-2 font-black text-sm uppercase tracking-wider text-black bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+            >
+              <Store className="w-4 h-4 stroke-[2.5]" />
+              Marketplace
+            </Link>
+
+            <Link
+              href="/items/new"
+              className="flex items-center gap-1.5 px-4 py-2 font-black text-sm uppercase tracking-wider text-black bg-[#00F5A0] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              Sell Item
+            </Link>
+
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1.5 px-4 py-2 font-black text-sm uppercase tracking-wider text-black bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+            >
+              <LayoutDashboard className="w-4 h-4 stroke-[2.5]" />
+              Dashboard
+            </Link>
+
+            {user && (
               <Link
-                key={link.href}
-                href={link.href}
-                className="btn-ghost text-sm"
+                href="/profile"
+                className="flex items-center gap-1.5 px-4 py-2 font-black text-sm uppercase tracking-wider text-black bg-[#00D2FF] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
               >
-                <link.icon className="w-4 h-4" />
-                {link.label}
+                <User className="w-4 h-4 stroke-[2.5]" />
+                Profile
               </Link>
-            ))}
+            )}
 
             {user ? (
-              <button onClick={handleLogout} className="btn-ghost text-sm text-red-400 hover:text-red-300">
-                <LogOut className="w-4 h-4" />
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-4 py-2 font-black text-sm uppercase tracking-wider text-black bg-[#FF5D8F] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+              >
+                <LogOut className="w-4 h-4 stroke-[2.5]" />
                 Logout
               </button>
             ) : (
-              <Link href="/auth/login" className="btn-primary text-sm !py-2 !px-4">
-                <LogIn className="w-4 h-4" />
+              <Link
+                href="/auth/login"
+                className="flex items-center gap-1.5 px-4 py-2 font-black text-sm uppercase tracking-wider text-white bg-black border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-gray-800 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+              >
+                <LogIn className="w-4 h-4 stroke-[2.5]" />
                 Sign In
               </Link>
             )}
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger button */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden btn-ghost !p-2"
+            className="md:hidden flex items-center justify-center w-11 h-11 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+            aria-label="Toggle menu"
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className="w-6 h-6 stroke-[3]" /> : <Menu className="w-6 h-6 stroke-[3]" />}
           </button>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu dropdown */}
         {mobileOpen && (
-          <div className="md:hidden pb-4 border-t border-white/[0.06] mt-2 pt-3 animate-fade-in">
-            <div className="flex flex-col gap-1">
-              {navLinks.map((link) => (
+          <div className="md:hidden pb-5 pt-3 border-t-2 border-black">
+            <div className="flex flex-col gap-2.5">
+              <Link
+                href="/"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 p-3 font-black text-sm uppercase tracking-wider text-black bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+              >
+                <Store className="w-4 h-4 stroke-[2.5]" />
+                Marketplace
+              </Link>
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 p-3 font-black text-sm uppercase tracking-wider text-black bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+              >
+                <LayoutDashboard className="w-4 h-4 stroke-[2.5]" />
+                Dashboard
+              </Link>
+              <Link
+                href="/items/new"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 p-3 font-black text-sm uppercase tracking-wider text-black bg-[#00F5A0] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" />
+                Sell Item
+              </Link>
+              {user && (
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  href="/profile"
                   onClick={() => setMobileOpen(false)}
-                  className="btn-ghost text-sm justify-start"
+                  className="flex items-center gap-2 p-3 font-black text-sm uppercase tracking-wider text-black bg-[#00D2FF] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
                 >
-                  <link.icon className="w-4 h-4" />
-                  {link.label}
+                  <User className="w-4 h-4 stroke-[2.5]" />
+                  Profile
                 </Link>
-              ))}
+              )}
               {user ? (
                 <button
-                  onClick={() => { handleLogout(); setMobileOpen(false); }}
-                  className="btn-ghost text-sm text-red-400 hover:text-red-300 justify-start"
+                  onClick={() => {
+                    handleLogout();
+                    setMobileOpen(false);
+                  }}
+                  className="flex items-center gap-2 p-3 font-black text-sm uppercase tracking-wider text-black bg-[#FF5D8F] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-left"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4 stroke-[2.5]" />
                   Logout
                 </button>
               ) : (
                 <Link
                   href="/auth/login"
                   onClick={() => setMobileOpen(false)}
-                  className="btn-primary text-sm !py-2 mt-2"
+                  className="flex items-center gap-2 p-3 font-black text-sm uppercase tracking-wider text-white bg-black border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
                 >
-                  <LogIn className="w-4 h-4" />
+                  <LogIn className="w-4 h-4 stroke-[2.5]" />
                   Sign In
                 </Link>
               )}

@@ -10,7 +10,6 @@ import {
   ArrowLeft,
   MapPin,
   Clock,
-  User,
   Phone,
   MessageSquare,
   IndianRupee,
@@ -18,8 +17,8 @@ import {
   Cpu,
   ShoppingBag,
   Bike,
-  ChevronDown,
-  Shield,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -29,7 +28,20 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   Vehicles: Bike,
 };
 
+const CATEGORY_STYLES: Record<string, string> = {
+  Books: "bg-[#00D2FF] text-black",
+  Electronics: "bg-[#A855F7] text-white",
+  Essentials: "bg-[#00F5A0] text-black",
+  Vehicles: "bg-[#FF7A00] text-black",
+};
+
 const STATUS_OPTIONS: ItemStatus[] = ["Available", "Reserved", "Sold"];
+
+const STATUS_ACTIVE_STYLES: Record<ItemStatus, string> = {
+  Available: "bg-[#00F5A0] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
+  Reserved: "bg-[#FFE600] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
+  Sold: "bg-[#FF5D8F] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
+};
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -59,7 +71,6 @@ export default function ItemDetailPage() {
           .single();
 
         if (error || !data) {
-          // Fallback to mock
           const mock = MOCK_ITEMS.find((i) => i.id === itemId) ?? MOCK_ITEMS[0];
           setItem(mock);
         } else {
@@ -86,7 +97,6 @@ export default function ItemDetailPage() {
       await supabase.from("items").update({ status: newStatus }).eq("id", item.id);
       setItem({ ...item, status: newStatus });
     } catch {
-      // Optimistically update anyway for demo
       setItem({ ...item, status: newStatus });
     } finally {
       setStatusUpdating(false);
@@ -103,7 +113,6 @@ export default function ItemDetailPage() {
     try {
       const supabase = createClient();
 
-      // Check existing conversation
       const { data: existing } = await supabase
         .from("conversations")
         .select("id")
@@ -116,7 +125,6 @@ export default function ItemDetailPage() {
         return;
       }
 
-      // Create new conversation
       const { data: newConv, error } = await supabase
         .from("conversations")
         .insert({
@@ -128,7 +136,6 @@ export default function ItemDetailPage() {
         .single();
 
       if (error || !newConv) {
-        // Demo fallback: go to mock chat
         router.push(`/chat/mock-conv-1`);
       } else {
         router.push(`/chat/${newConv.id}`);
@@ -144,14 +151,8 @@ export default function ItemDetailPage() {
     return (
       <>
         <Navbar />
-        <main className="page-container max-w-4xl">
-          <div className="glass-card p-8 animate-pulse">
-            <div className="h-6 bg-white/[0.06] rounded w-1/4 mb-4" />
-            <div className="h-8 bg-white/[0.06] rounded w-3/4 mb-6" />
-            <div className="h-4 bg-white/[0.06] rounded w-full mb-2" />
-            <div className="h-4 bg-white/[0.06] rounded w-2/3 mb-8" />
-            <div className="h-12 bg-white/[0.06] rounded w-1/3" />
-          </div>
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-pulse h-96" />
         </main>
       </>
     );
@@ -160,167 +161,189 @@ export default function ItemDetailPage() {
   if (!item) return null;
 
   const CategoryIcon = CATEGORY_ICONS[item.category] ?? ShoppingBag;
-  const statusClass =
-    item.status === "Available"
-      ? "badge-available"
-      : item.status === "Reserved"
-        ? "badge-reserved"
-        : "badge-sold";
+  const categoryStyle = CATEGORY_STYLES[item.category] ?? "bg-white text-black";
 
   return (
     <>
       <Navbar />
-      <main className="page-container max-w-4xl">
-        <div className="animate-in">
-          <button
-            onClick={() => router.back()}
-            className="btn-ghost text-sm mb-6 -ml-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Marketplace
-          </button>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 mb-8 bg-white border-2 border-black px-4 py-2 font-black text-sm uppercase tracking-wider text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+        >
+          <ArrowLeft className="w-4 h-4 stroke-[3]" />
+          Back to marketplace
+        </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Item header */}
-              <div className="glass-card p-8">
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-brand-500/10 text-brand-300 border border-brand-500/20">
-                    <CategoryIcon className="w-3.5 h-3.5" />
-                    {item.category}
-                  </span>
-                  <span className={statusClass}>{item.status}</span>
-                  <span className="text-xs text-gray-600 bg-white/[0.04] px-2.5 py-1 rounded-lg">
-                    {item.condition}
-                  </span>
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Item Card */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-2.5 mb-5">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${categoryStyle}`}
+                >
+                  <CategoryIcon className="w-3.5 h-3.5 stroke-[2.5]" />
+                  {item.category}
+                </span>
 
-                <h1 className="text-2xl sm:text-3xl font-display font-bold text-white leading-tight mb-4">
-                  {item.title}
-                </h1>
+                <span className="inline-flex items-center px-3 py-1 text-xs font-black uppercase tracking-wider bg-[#00F5A0] text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  {item.status}
+                </span>
 
-                <div className="flex items-baseline gap-1.5 mb-6">
-                  <IndianRupee className="w-5 h-5 text-brand-400" />
-                  <span className="text-3xl font-display font-extrabold text-white">
+                <span className="inline-flex items-center px-3 py-1 text-xs font-black uppercase tracking-wider bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  Condition: {item.condition}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-black leading-tight mb-4">
+                {item.title}
+              </h1>
+
+              {/* Price Banner */}
+              <div className="mb-6">
+                <div className="inline-flex items-center gap-1 bg-[#FFE600] border-4 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <IndianRupee className="w-6 h-6 stroke-[3] text-black" />
+                  <span className="text-3xl sm:text-4xl font-black text-black">
                     {item.price.toLocaleString("en-IN")}
-                  </span>
-                </div>
-
-                <div className="border-t border-white/[0.06] pt-6">
-                  <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                    Description
-                  </h2>
-                  <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {item.description}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-4 mt-6 pt-4 border-t border-white/[0.06] text-sm text-gray-500">
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4" />
-                    {new Date(item.created_at).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
                   </span>
                 </div>
               </div>
 
-              {/* Owner: Status Toggle */}
-              {isOwner && (
-                <div className="glass-card p-6">
-                  <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-                    Manage Listing
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {STATUS_OPTIONS.map((s) => (
+              {/* Product Photo */}
+              {item.image_url && (
+                <div className="relative w-full h-72 sm:h-96 mb-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-[#FFFDEB]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.image_url}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Description Section */}
+              <div className="border-t-4 border-black pt-6 mt-6">
+                <h2 className="text-xs font-black uppercase tracking-widest text-black/60 mb-2">
+                  Seller Description
+                </h2>
+                <p className="text-base font-bold text-black leading-relaxed whitespace-pre-wrap">
+                  {item.description}
+                </p>
+              </div>
+
+              {/* Metadata */}
+              <div className="flex items-center gap-4 mt-6 pt-4 border-t-2 border-black text-xs font-black uppercase text-black/70">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 stroke-[2.5]" />
+                  Listed on {new Date(item.created_at).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+            </div>
+
+            {/* Owner: Status Toggle Controls */}
+            {isOwner && (
+              <div className="bg-[#FFE600] border-4 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                <h2 className="text-sm font-black uppercase tracking-wider text-black mb-3">
+                  Manage Listing Status (Seller Controls)
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {STATUS_OPTIONS.map((s) => {
+                    const isSelected = item.status === s;
+                    return (
                       <button
                         key={s}
                         onClick={() => handleStatusChange(s)}
                         disabled={statusUpdating}
-                        className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200 ${
-                          item.status === s
-                            ? s === "Available"
-                              ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/25"
-                              : s === "Reserved"
-                                ? "bg-amber-500/15 text-amber-400 border-amber-500/25"
-                                : "bg-red-500/15 text-red-400 border-red-500/25"
-                            : "bg-white/[0.04] text-gray-400 border-white/[0.08] hover:bg-white/[0.08]"
+                        className={`px-4 py-2 text-xs font-black uppercase tracking-wider border-2 border-black transition-all ${
+                          isSelected
+                            ? STATUS_ACTIVE_STYLES[s]
+                            : "bg-white text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                         }`}
                       >
-                        {s}
+                        Set as {s}
                       </button>
-                    ))}
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Seller Info Card */}
+            <div className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <h2 className="text-xs font-black uppercase tracking-widest text-black/60 mb-4">
+                Seller Information
+              </h2>
+
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-black text-[#FFE600] border-2 border-black flex items-center justify-center font-black text-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                  {(item.seller?.name?.[0] ?? "?").toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-black text-lg text-black uppercase leading-tight">
+                    {item.seller?.name ?? "Campus Student"}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs font-black uppercase text-emerald-700 mt-0.5">
+                    <ShieldCheck className="w-3.5 h-3.5 stroke-[3]" />
+                    Hostel Verified
                   </div>
                 </div>
-              )}
+              </div>
+
+              <div className="space-y-2.5 pt-3 border-t-2 border-black text-xs font-black uppercase">
+                <div className="flex items-center gap-2 bg-[#f4f4f0] border-2 border-black p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <MapPin className="w-4 h-4 stroke-[2.5]" />
+                  <span>Hostel: {item.seller?.hostel_block || "Campus"}</span>
+                </div>
+                {item.seller?.phone && (
+                  <div className="flex items-center gap-2 bg-[#f4f4f0] border-2 border-black p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <Phone className="w-4 h-4 stroke-[2.5]" />
+                    <span>Phone: {item.seller.phone}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Sidebar: Seller info + CTA */}
-            <div className="space-y-6">
-              {/* Seller card */}
-              <div className="glass-card p-6">
-                <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-                  Seller
-                </h2>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-lg">
-                    {(item.seller?.name?.[0] ?? "?").toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">
-                      {item.seller?.name ?? "Unknown Seller"}
-                    </p>
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-                      <Shield className="w-3 h-3 text-emerald-500" />
-                      Verified Student
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <MapPin className="w-4 h-4 text-gray-600" />
-                    {item.seller?.hostel_block || "Campus"}
-                  </div>
-                  {item.seller?.phone && (
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Phone className="w-4 h-4 text-gray-600" />
-                      {item.seller.phone}
-                    </div>
-                  )}
-                </div>
-              </div>
+            {/* Message Seller CTA Button */}
+            {!isOwner && (
+              <button
+                onClick={handleMessageSeller}
+                disabled={chatLoading}
+                className="w-full bg-[#FFE600] hover:bg-[#FFD000] text-black font-black text-lg uppercase tracking-wider py-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              >
+                {chatLoading ? (
+                  <>
+                    <span className="w-5 h-5 border-3 border-black border-t-transparent rounded-full animate-spin" />
+                    <span>Opening Chat…</span>
+                  </>
+                ) : (
+                  <>
+                    <MessageSquare className="w-5 h-5 stroke-[3]" />
+                    Message & Bargain
+                  </>
+                )}
+              </button>
+            )}
 
-              {/* Message Seller CTA */}
-              {!isOwner && (
-                <button
-                  onClick={handleMessageSeller}
-                  disabled={chatLoading}
-                  className="btn-primary w-full !py-4 text-base"
-                >
-                  {chatLoading ? (
-                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <MessageSquare className="w-5 h-5" />
-                      Message Seller
-                    </>
-                  )}
-                </button>
-              )}
-
-              {/* Safety tip */}
-              <div className="glass-card p-5">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Safety Tip
-                </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
-                  Always meet in a common area on campus. Never share personal
-                  financial details. Use HostelHub chat for all negotiations.
-                </p>
+            {/* Campus Safety Notice */}
+            <div className="bg-[#FFFDEB] border-4 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                <ShieldAlert className="w-4 h-4 stroke-[3]" />
+                Hostel Safety Rule
               </div>
+              <p className="text-xs font-bold text-gray-800 leading-relaxed uppercase">
+                Always inspect items in person at a hostel mess or campus common area before transferring money.
+              </p>
             </div>
           </div>
         </div>
